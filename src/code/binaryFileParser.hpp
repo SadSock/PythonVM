@@ -28,9 +28,10 @@ using std::dynamic_pointer_cast;
 class BinaryFileParser {
 private:
   shared_ptr<BufferedInputStream> file_stream;
-
+  shared_ptr<ArrayList<shared_ptr<HiString>>> _string_table  =  make_shared<ArrayList<shared_ptr<HiString>>>();
 public:
-  BinaryFileParser(shared_ptr<BufferedInputStream> stream):file_stream(stream){}
+  BinaryFileParser(shared_ptr<BufferedInputStream> stream):file_stream(stream){
+  }
 
   optional<shared_ptr<CodeObject>> parse(){
     int magic_number = this->file_stream->read_int();
@@ -52,8 +53,6 @@ public:
     return nullopt;
   }
 
-
-
   shared_ptr<HiString> get_byte_codes(){
     assert(this->file_stream->read()=='s');
     return this->get_string();
@@ -73,7 +72,6 @@ public:
 
     shared_ptr<HiString> s = make_shared<HiString>(str_value,length);
     delete [] str_value;
-
     return s;
   }
 
@@ -97,9 +95,18 @@ public:
       case 'N':
         list->add(NULL);
         break;
-        //case 't':
-        //str = this->get_string();
-        //list->add(str);
+      case 't':
+        str = this->get_string();
+        list->add(str);
+        this->_string_table->add(str);
+        break;
+      case 's':
+        str = this->get_string();
+        list->add(str);
+        break;
+      case 'R':
+        list->add(this->_string_table->get(this->file_stream->read_int()));
+        break;
       }
     }
 
@@ -115,9 +122,22 @@ public:
     return nullopt;
   }
 
-  shared_ptr<ArrayList<shared_ptr<HiObject>>> get_names(){
-    shared_ptr<ArrayList<shared_ptr<HiObject>>> list = make_shared<ArrayList<shared_ptr<HiObject>>>();
-    return list;
+  optional<shared_ptr<ArrayList<shared_ptr<HiObject>>>> get_names(){
+    if (this->file_stream->read() == '(') {
+
+      auto ret = this->get_tuple();
+
+      //
+      printf("变量表解析结束\n"); 
+      for(int i = 0 ; i < ret->size() ; i++){
+        ret->get(i)->print();
+      }
+      printf("\n");
+      return ret;
+    }
+
+    this->file_stream->unread();
+    return nullopt;
   }
 
   shared_ptr<ArrayList<shared_ptr<HiObject>>> get_var_names() {
@@ -149,15 +169,15 @@ public:
 
   optional<shared_ptr<CodeObject>> get_code_object() {
     int argcount         = this->file_stream->read_int();
-    printf("%d",argcount);
+    printf("argcount = %d\n",argcount);
     int nlocals          = this->file_stream->read_int();
     int stacksize        = this->file_stream->read_int();
     int flag             = this->file_stream->read_int();
-    printf("%d",flag);
+    printf("flag = %d\n",flag);
 
     shared_ptr<HiString> byte_codes                                = this->get_byte_codes();
     shared_ptr<ArrayList<shared_ptr<HiObject>>>  consts            = this->get_consts().value();
-    shared_ptr<ArrayList<shared_ptr<HiObject>>>  names             = this->get_names();
+    shared_ptr<ArrayList<shared_ptr<HiObject>>>  names             = this->get_names().value();
     shared_ptr<ArrayList<shared_ptr<HiObject>>>  var_names         = this->get_var_names();
     shared_ptr<ArrayList<shared_ptr<HiObject>>>  free_vars         = this->get_free_vars();
     shared_ptr<ArrayList<shared_ptr<HiObject>>>  cell_vars         = this->get_cell_vars();

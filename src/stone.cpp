@@ -32,13 +32,13 @@ using std::wifstream;
 using std::wofstream;
 
 int main(int argc, char **argv) {
-  //if (argc <= 1) {
-  //  printf("vm need a parameter:filename\n");
-  //  exit(1);
-  //}
+  if (argc <= 1) {
+    printf("vm need a parameter:filename\n");
+    exit(1);
+  }
 
   //shared_ptr<BufferedInputStream> stream = make_shared<BufferedInputStream>(argv[1]);
-  shared_ptr<BufferedInputStream> stream = make_shared<BufferedInputStream>("hello.pyc");
+  shared_ptr<BufferedInputStream> stream = make_shared<BufferedInputStream>(argv[1]); 
   // printf("magic number is 0x%x\n",stream->read_int());
 
   shared_ptr<BinaryFileParser> parser = make_shared<BinaryFileParser>(stream);
