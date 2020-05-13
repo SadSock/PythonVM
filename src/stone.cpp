@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
   }
 
   //shared_ptr<BufferedInputStream> stream = make_shared<BufferedInputStream>(argv[1]);
-  shared_ptr<BufferedInputStream> stream = make_shared<BufferedInputStream>(argv[1]); 
+  shared_ptr<BufferedInputStream> stream = make_shared<BufferedInputStream>(argv[1]);
   // printf("magic number is 0x%x\n",stream->read_int());
 
   shared_ptr<BinaryFileParser> parser = make_shared<BinaryFileParser>(stream);

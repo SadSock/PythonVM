@@ -1,6 +1,12 @@
 # 设置运行此配置文件所需的CMake最低版本
 cmake_minimum_required(VERSION 3.15)
 
+#set(CMAKE_C_COMPILER /usr/bin/gcc)
+#set(CMAKE_CXX_COMPILER /usr/bin/g++)
+set(CMAKE_C_COMPILER "/usr/local/opt/llvm/bin/clang")
+set(CMAKE_CXX_COMPILER "/usr/local/opt/llvm/bin/clang++")
+
+
 # set the project name
 # 设置项目名称
 project(stone VERSION 1.0)
@@ -11,9 +17,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
-
-set(CMAKE_C_COMPILER "/usr/local/opt/llvm/bin/clang")
-set(CMAKE_CXX_COMPILER "/usr/local/opt/llvm/bin/clang++")
 
 
 # 
@@ -42,11 +45,10 @@ find_package(Qt5Core)
 # add the executable
 # 添加一个可执行文件
 add_executable(stone stone.cpp
-  object/hiInteger.hpp
-  object/hiString.hpp
-  util/arrayList.hpp
-  code/binaryFileParser.hpp
-  code/codeObject.hpp)
+  object/hiObject.cpp
+  runtime/universe.cpp
+  object/hiString.cpp
+  )
 
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h

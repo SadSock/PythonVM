@@ -81,6 +81,7 @@ public:
 
     shared_ptr<ArrayList<shared_ptr<HiObject>>> list = make_shared<ArrayList<shared_ptr<HiObject>>>(length);
 
+    shared_ptr<HiInteger> tmp1;
     for(int i = 0; i < length; i++){
       char obj_type = this->file_stream->read();
 
@@ -90,7 +91,13 @@ public:
         list->add(this->get_code_object().value());
         break;
       case 'i':
-        list->add(make_shared<HiInteger>(this->file_stream->read_int()));
+        //printf("get_tuple\n");
+        tmp1 = make_shared<HiInteger>(this->file_stream->read_int());
+        //if(!tmp1->klass())
+        //  printf("No");
+        //else
+        //  printf("Yes");
+        list->add(tmp1);
         break;
       case 'N':
         list->add(NULL);

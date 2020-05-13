@@ -32,7 +32,7 @@
 *.app
 
 #系统文件
-
+*.json
 *.#*
 .ccls-cache/*
 .DS_Store
