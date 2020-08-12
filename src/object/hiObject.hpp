@@ -27,6 +27,7 @@ public:
   void set_klass(shared_ptr<Klass> x);
   shared_ptr<HiObject> get_ptr();
   void print();
+  void print_type();
 
 public:
   shared_ptr<HiObject> greater   (shared_ptr<HiObject> x);

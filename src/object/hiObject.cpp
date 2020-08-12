@@ -32,6 +32,8 @@ shared_ptr<HiObject> HiObject::get_ptr(){ return this->shared_from_this();}
 
 void HiObject::print() { this->klass()->print(this->get_ptr()); }
 
+void HiObject::print_type() {this->klass()->print_type(this->get_ptr());}
+
 HiObject::~HiObject(){}
 
 shared_ptr<HiObject> HiObject::greater(shared_ptr<HiObject> x){

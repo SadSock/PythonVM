@@ -1,3 +1,6 @@
+#pragma once
+
+
 #include "../runtime/universe.hpp"
 
 #include <memory>

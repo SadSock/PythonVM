@@ -1,74 +1,78 @@
 #pragma once
 
 
+
 #include "../code/codeObject.hpp"
 #include "../code/byteCode.hpp"
 #include "../object/hiInteger.hpp"
 #include "../util/map.hpp"
+#include "block.hpp"
+#include "frameObject.hpp"
+#include "functionObject.hpp"
 
 
 #include <cstdio>
 #include <memory>
 
 
-
-#define PUSH(x)                    _stack->add((x))
-#define POP()                      _stack->pop()
-#define STACK_LEVEL()              _stack->size()
+#define PUSH(x)                      this->_frame->_stack->add((x))
+#define POP()                        this->_frame->_stack->pop()
+#define STACK_LEVEL()                this->_frame->_stack->size()
 
 
 using std::shared_ptr;
 using std::make_shared;
 
-class Block{
-public:
-  unsigned char    _type;
-  unsigned int     _target;
-  int              _level;
-
-  Block();
-  Block(unsigned char b_type, unsigned int b_target, int b_level)
-    :_type(b_type),_target(b_target),_level(b_level) {}
-
-  Block& operator =(const Block& b){
-    _type       = b._type;
-    _target     = b._target;
-    _level      = b._level;
-    return *this;
-  }
-};
-
-
 
 class Interpreter{
 private:
 
-  shared_ptr<ArrayList<shared_ptr<Block>>>                   _loop_stack;
+  shared_ptr<FrameObject>            _frame;
+  shared_ptr<HiObject>               _ret_value;
 
-  shared_ptr<ArrayList<shared_ptr<HiObject>>>                _stack;
-  shared_ptr<ArrayList<shared_ptr<HiObject>>>                _const;
-  shared_ptr<ArrayList<shared_ptr<HiObject>>>                _co_names;
-  shared_ptr<Map<shared_ptr<HiObject>,shared_ptr<HiObject>>> _vars;
 public:
+
+  void build_frame(shared_ptr<HiObject> callable){
+
+
+    auto tmp = dynamic_pointer_cast<FunctionObject>(callable);
+
+
+    shared_ptr<FrameObject>  frame = make_shared<FrameObject>(tmp);
+    frame->set_sender(this->_frame);
+    this->_frame = frame;
+  }
+
   void run(shared_ptr<CodeObject> codes) {
-    int pc               = 0;
-    int code_length      = codes->_bytecodes->length();
-    _stack               = make_shared<ArrayList<shared_ptr<HiObject>>>(codes->_stack_size);
-    _const               = codes->_consts;
-    _co_names            = codes->_names;
-    _vars                = make_shared <Map<shared_ptr<HiObject>, shared_ptr<HiObject>>>();
-    _loop_stack          = make_shared<ArrayList<shared_ptr<Block>>>();
+    this->_frame = make_shared<FrameObject>(codes);
+    this->eval_frame();
+    this->destroy_frame();
+  }
+
+  void destroy_frame(){
+    this->_frame = this->_frame->sender();
+  }
+
+  void leave_frame(){
+    this->destroy_frame();
+    PUSH(this->_ret_value);
+  }
 
 
-    while (pc < code_length) {
 
-      unsigned char op_code           = codes->_bytecodes->value()[pc++];
+  void eval_frame(){
+
+    while (this->_frame->has_more_codes()) {
+
+      unsigned char op_code           = this->_frame->get_op_code();
       bool has_argument               = (op_code & 0xFF) >= ByteCode::HAVE_ARGUMENT;
+
+
+      shared_ptr<FunctionObject> fo   = nullptr;
 
       int op_arg     =  -1;
       if(has_argument){
-        int byte1    = (codes->_bytecodes->value()[pc++] & 0xFF);
-        op_arg       = ((codes->_bytecodes->value()[pc++] & 0xFF) << 8) | byte1;
+        op_arg = this->_frame->get_op_arg();
       }
 
       shared_ptr<HiInteger> lhs,rhs;
@@ -76,46 +80,66 @@ public:
       shared_ptr<Block>     b;
 
       switch(op_code){
+
+      case ByteCode::POP_TOP:
+        POP();
+        break;
+      case ByteCode::RETURN_VALUE:
+        this->_ret_value = POP();
+        if(this->_frame->is_first_frame())
+          return;
+        leave_frame();
+        break;
+      case ByteCode::CALL_FUNCTION:
+        v = POP();
+        w = v;
+        build_frame(v);
+        break;
+      case ByteCode::MAKE_FUNCTION:
+        v  = POP();
+        fo = make_shared<FunctionObject>(v);
+        PUSH(fo);
+        break;
       case ByteCode::BINARY_ADD: // 23
-        v = _stack->pop();
-        w = _stack->pop();
-        _stack->add(w->add(v));
+        v = this->_frame->stack()->pop();
+        w = this->_frame->stack()->pop();
+        this->_frame->stack()->add(w->add(v));
         break;
       case ByteCode::PRINT_ITEM://71
-        v = _stack->pop();
+        v = this->_frame->stack()->pop();
         v->print();
         break;
       case ByteCode::PRINT_NEWLINE://72
         printf("\n");
         break;
       case ByteCode::BREAK_LOOP://80
-        b = _loop_stack->pop();
+        b = this->_frame->_loop_stack->pop();
         while(STACK_LEVEL() > b->_level){
           POP();
         }
-        pc = b->_target;
+        this->_frame->set_pc(b->_target);
         break;
-      case ByteCode::RETURN_VALUE://83
-        _stack->pop();
-        break;
+      // case ByteCode::RETURN_VALUE://83
+        // this->_frame->stack()->pop();
+        // break;
 
       case ByteCode::POP_BLOCK://87
-        b = _loop_stack->pop();
+        b = this->_frame->_loop_stack->pop();
         while (STACK_LEVEL() > b->_level) {
           POP();
         }
         break;
       case ByteCode::STORE_NAME://90
-        v = _co_names->get(op_arg);
+        v = this->_frame->_names->get(op_arg);
         w = POP();
-        _vars->put(v, w);
+        this->_frame->_locals->put(v, w);
         break;
       case ByteCode::LOAD_CONST: // 100
-        _stack->add(_const->get(op_arg));
+        this->_frame->stack()->add(this->_frame->_consts->get(op_arg));
         break;
       case ByteCode::LOAD_NAME: //101
-        v = _co_names->get(op_arg);
-        w = _vars->get(v);
+        v = this->_frame->_names->get(op_arg);
+        w = this->_frame->_locals->get(v);
         PUSH(w);
         break;
       case ByteCode::COMPARE_OP://107
@@ -142,24 +166,24 @@ public:
           PUSH(v->le(w));
           break;
         default:
-          printf("Error: Unrecognized compare op %d\n",op_arg);
+          printf("Error: Unrecognized compare op %x\n",op_arg);
         }
         break;
       case ByteCode::JUMP_FORWARD://110
-        pc = pc + op_arg;
+        this->_frame->set_pc(this->_frame->get_pc() + op_arg);
         break;
       case ByteCode::JUMP_ABSOLUTE://113
-        pc = op_arg;
+        this->_frame->set_pc(op_arg);
         break;
       case ByteCode::POP_JUMP_IF_FALSE://114
         v = POP();
         if(v==Universe::HiFalse)
-          pc = op_arg;
+          this->_frame->set_pc(op_arg);
         break;
 
       case ByteCode::SETUP_LOOP://120
-        _loop_stack->add(
-            make_shared<Block>(op_code, pc + op_arg, STACK_LEVEL()));
+        this->_frame->_loop_stack->add(
+            make_shared<Block>(op_code, this->_frame->get_pc() + op_arg, STACK_LEVEL()));
         break;
 
       default:
@@ -167,4 +191,6 @@ public:
       }
     }
   }
+
+
 };

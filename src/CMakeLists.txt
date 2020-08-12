@@ -32,7 +32,7 @@ configure_file(stoneConfig.h.in stoneConfig.h)
 
 #查找需要的Qt库文件，最好每一个库都要写，Qt也会根据依赖关系自动添加
 
-SET(CMAKE_PREFIX_PATH  "/usr/local/Cellar/qt/5.14.2/")
+SET(CMAKE_PREFIX_PATH  "/usr/local/Cellar/qt/5.15.0/")
 #find_package(Qt5Widgets)
 find_package(Qt5Core)
 #find_package(Qt5Gui)
@@ -60,6 +60,23 @@ target_include_directories(stone PUBLIC
 #添加Qt5依赖项
 #target_link_libraries(${PROJECT_NAME} Qt5::Widgets Qt5::Core Qt5::Gui)
 target_link_libraries(${PROJECT_NAME} Qt5::Core)
+
+
+enable_testing()
+ADD_TEST(NAME test_var COMMAND ./stone ../test/var.pyc)
+SET_TESTS_PROPERTIES(test_var PROPERTIES PASS_REGULAR_EXPRESSION "1\n2\n3\n4\n5\n6\n7\n")
+
+ADD_TEST(NAME test_if COMMAND ./stone ../test/if.pyc)
+SET_TESTS_PROPERTIES(test_if PROPERTIES PASS_REGULAR_EXPRESSION "2\n3\n")
+
+ADD_TEST(NAME test_for COMMAND ./stone ../test/for.pyc)
+SET_TESTS_PROPERTIES(test_for PROPERTIES PASS_REGULAR_EXPRESSION "1\n1\n2\n3\n5\n8\n13\n21\n34\n55\n")
+
+ADD_TEST(NAME test_break COMMAND ./stone ../test/break.pyc)
+SET_TESTS_PROPERTIES(test_break PROPERTIES PASS_REGULAR_EXPRESSION "0\n1\n2\n1\n0\n1\n2\n2\n0\n1\n2\n")
+
+ADD_TEST(NAME test_hello COMMAND ./stone ../test/hello.pyc)
+SET_TESTS_PROPERTIES(test_hello PROPERTIES PASS_REGULAR_EXPRESSION "9\n")
 
 
 

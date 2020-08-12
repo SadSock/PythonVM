@@ -46,6 +46,8 @@ int main(int argc, char **argv) {
   shared_ptr<CodeObject> main_code = parser->parse().value();
 
   Interpreter interpreter;
+
   interpreter.run(main_code);
+
   return 0;
 }

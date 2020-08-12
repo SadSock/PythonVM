@@ -100,7 +100,7 @@ public:
         list->add(tmp1);
         break;
       case 'N':
-        list->add(NULL);
+        list->add(nullptr);
         break;
       case 't':
         str = this->get_string();
@@ -148,30 +148,83 @@ public:
   }
 
   shared_ptr<ArrayList<shared_ptr<HiObject>>> get_var_names() {
-    shared_ptr<ArrayList<shared_ptr<HiObject>>> list =
-        make_shared<ArrayList<shared_ptr<HiObject>>>();
-    return list;
+    if (this->file_stream->read() == '(') {
+      return this->get_tuple();
+    }
+
+    this->file_stream->unread();
+    return nullptr;
   }
 
   shared_ptr<ArrayList<shared_ptr<HiObject>>> get_free_vars(){
-    shared_ptr<ArrayList<shared_ptr<HiObject>>> list = make_shared<ArrayList<shared_ptr<HiObject>>>();
-    return list;
+    if (this->file_stream->read() == '(') {
+      return this->get_tuple();
+    }
+
+    this->file_stream->unread();
+    return nullptr;
   }
   shared_ptr<ArrayList<shared_ptr<HiObject>>> get_cell_vars(){
-    shared_ptr<ArrayList<shared_ptr<HiObject>>> list = make_shared<ArrayList<shared_ptr<HiObject>>>();
-    return list;
+    if (this->file_stream->read() == '(') {
+      return this->get_tuple();
+    }
+
+    this->file_stream->unread();
+    return nullptr;
   }
   shared_ptr<HiString> get_file_name(){
-    shared_ptr<HiString> str = make_shared<HiString>("");
-    return str;
+    char obj_type = this->file_stream->read();
+
+    if (obj_type == 's') {
+      return this->get_string();
+    }
+
+   if (obj_type == 't') {
+     auto str = this->get_string();
+     this->_string_table->add(str);
+     return str;
+   }
+   if (obj_type == 'R') {
+     return this->_string_table->get(this->file_stream->read_int());
+   }
+
+    return nullptr;
   }
   shared_ptr<HiString> get_name(){
-     shared_ptr<HiString> str =  make_shared<HiString>("");
-    return str;
+    char obj_type = this->file_stream->read();
+
+    if (obj_type == 's') {
+      return this->get_string();
+    }
+
+    if (obj_type == 't') {
+      auto str = this->get_string();
+      this->_string_table->add(str);
+      return str;
+    }
+    if (obj_type == 'R') {
+      return this->_string_table->get(this->file_stream->read_int());
+    }
+
+    return nullptr;
   }
   shared_ptr<HiString> get_no_table(){
-    shared_ptr<HiString> str = make_shared<HiString>("");
-    return str;
+    char obj_type = this->file_stream->read();
+
+    if (obj_type == 's') {
+      return this->get_string();
+    }
+
+    if (obj_type == 't') {
+      auto str = this->get_string();
+      this->_string_table->add(str);
+      return str;
+    }
+    if (obj_type == 'R') {
+      return this->_string_table->get(this->file_stream->read_int());
+    }
+
+    return nullptr;
   }
 
   optional<shared_ptr<CodeObject>> get_code_object() {
@@ -183,6 +236,8 @@ public:
     printf("flag = %d\n",flag);
 
     shared_ptr<HiString> byte_codes                                = this->get_byte_codes();
+    byte_codes->get_ptr();
+    printf("%d\n",byte_codes->length());
     shared_ptr<ArrayList<shared_ptr<HiObject>>>  consts            = this->get_consts().value();
     shared_ptr<ArrayList<shared_ptr<HiObject>>>  names             = this->get_names().value();
     shared_ptr<ArrayList<shared_ptr<HiObject>>>  var_names         = this->get_var_names();

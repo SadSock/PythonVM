@@ -18,6 +18,7 @@ public:
   shared_ptr<HiString> name();
 
   virtual void print(shared_ptr<HiObject> obj){};
+  virtual void print_type(shared_ptr<HiObject> obj) = 0;
 
   virtual shared_ptr<HiObject> greater     (shared_ptr<HiObject> x, shared_ptr<HiObject> y){return Universe::HiNone;}
   virtual shared_ptr<HiObject> less        (shared_ptr<HiObject> x, shared_ptr<HiObject> y){return Universe::HiNone;}

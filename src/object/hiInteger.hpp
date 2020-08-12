@@ -55,6 +55,10 @@ public:
     return IntegerKlass::instance;
   }
 
+  virtual void print_type(shared_ptr<HiObject> x) override{
+    printf("Integer");
+  }
+
   virtual void print(shared_ptr<HiObject> x) override {
     assert(x && (x->klass() == dynamic_pointer_cast<Klass>(IntegerKlass::get_instance())));
 

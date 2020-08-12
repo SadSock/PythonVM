@@ -31,7 +31,10 @@ public:
 class StringKlass : public Klass{
 private:
   static shared_ptr<StringKlass> instance;
-  StringKlass(){}
+  StringKlass(){
+    //shared_ptr<HiString> x = std::make_shared<HiString>("String");
+    //this->set_name(x);
+  }
 
 public:
   virtual ~StringKlass(){};
@@ -64,6 +67,10 @@ public:
     }
 
     return Universe::HiTrue;
+  }
+
+  void print_type(shared_ptr<HiObject> obj) override{
+    printf("String");
   }
 
 
