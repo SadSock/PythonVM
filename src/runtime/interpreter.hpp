@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 #include "../code/codeObject.hpp"
 #include "../code/byteCode.hpp"
 #include "../object/hiInteger.hpp"
@@ -10,10 +8,9 @@
 #include "frameObject.hpp"
 #include "functionObject.hpp"
 
-
+#include <QDebug>
 #include <cstdio>
 #include <memory>
-
 
 #define PUSH(x)                      this->_frame->_stack->add((x))
 #define POP()                        this->_frame->_stack->pop()
@@ -34,9 +31,7 @@ public:
 
   void build_frame(shared_ptr<HiObject> callable){
 
-
     auto tmp = dynamic_pointer_cast<FunctionObject>(callable);
-
 
     shared_ptr<FrameObject>  frame = make_shared<FrameObject>(tmp);
     frame->set_sender(this->_frame);
@@ -59,7 +54,6 @@ public:
   }
 
 
-
   void eval_frame(){
 
     while (this->_frame->has_more_codes()) {
@@ -67,6 +61,7 @@ public:
       unsigned char op_code           = this->_frame->get_op_code();
       bool has_argument               = (op_code & 0xFF) >= ByteCode::HAVE_ARGUMENT;
 
+      qInfo()<<"execute op_code"<<op_code;
 
       shared_ptr<FunctionObject> fo   = nullptr;
 

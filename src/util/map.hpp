@@ -43,7 +43,7 @@ public:
   }
   int size(){return this->_entries.size();}
   void put(K k,V v){
-    for(int i = 0; i < this->_entries.size(); i++){
+    for(decltype(this->_entries.size()) i = 0; i < this->_entries.size(); i++){
       if(this->_entries[i]._k->equal(k) ==  Universe::HiTrue){
         this->_entries[i]._v = v;
         return;
@@ -67,7 +67,7 @@ public:
     return this->_entries[index]._k;
   }
   int index(K k){
-    for(int i = 0; i < this->_entries.size(); i++){
+    for(decltype(this->_entries.size()) i = 0; i < this->_entries.size(); i++){
       if(this->_entries[i]._k->equal(k) == Universe::HiTrue){
         return i;
       }

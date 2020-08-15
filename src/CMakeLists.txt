@@ -1,11 +1,23 @@
 # 设置运行此配置文件所需的CMake最低版本
 cmake_minimum_required(VERSION 3.15)
 
-#set(CMAKE_C_COMPILER /usr/bin/gcc)
-#set(CMAKE_CXX_COMPILER /usr/bin/g++)
-set(CMAKE_C_COMPILER "/usr/local/opt/llvm/bin/clang")
-set(CMAKE_CXX_COMPILER "/usr/local/opt/llvm/bin/clang++")
 
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+
+IF (WIN32)
+MESSAGE(STATUS "Now is windows")
+    set(CMAKE_C_COMPILER /usr/bin/gcc)
+    set(CMAKE_CXX_COMPILER /usr/bin/g++)
+ELSEIF (APPLE)
+    MESSAGE(STATUS "Now is Apple systens.")
+    set(CMAKE_C_COMPILER "/usr/local/opt/llvm/bin/clang")
+    set(CMAKE_CXX_COMPILER "/usr/local/opt/llvm/bin/clang++")
+ELSEIF (UNIX)
+    	MESSAGE(STATUS "Now is UNIX-like OS's.")
+ENDIF ()
 
 # set the project name
 # 设置项目名称
@@ -32,7 +44,17 @@ configure_file(stoneConfig.h.in stoneConfig.h)
 
 #查找需要的Qt库文件，最好每一个库都要写，Qt也会根据依赖关系自动添加
 
-SET(CMAKE_PREFIX_PATH  "/usr/local/Cellar/qt/5.15.0/")
+IF (WIN32)
+    MESSAGE(STATUS "Now is windows")
+ELSEIF (APPLE)
+    MESSAGE(STATUS "Now is Apple systens.")
+    SET(CMAKE_PREFIX_PATH  "/usr/local/Cellar/qt/5.15.0/")
+ELSEIF (UNIX)
+    MESSAGE(STATUS "Now is UNIX-like OS's.")
+    SET(CMAKE_PREFIX_PATH  "/usr/lib/x86_64-linux-gnu/cmake/Qt5/")
+ENDIF ()
+
+
 #find_package(Qt5Widgets)
 find_package(Qt5Core)
 #find_package(Qt5Gui)
