@@ -32,7 +32,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 
 # 
-SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g -ggdb")
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall  -g -ggdb")
 SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
 
 # configure a header file to pass some of the CMake settings
@@ -101,7 +101,10 @@ ADD_TEST(NAME test_hello COMMAND ./stone ../test/hello.pyc)
 SET_TESTS_PROPERTIES(test_hello PROPERTIES PASS_REGULAR_EXPRESSION "9\n")
 
 
+ADD_TEST(NAME test_buildin  COMMAND ./stone ../test/builtin.pyc)
+SET_TESTS_PROPERTIES(test_buildin  PROPERTIES PASS_REGULAR_EXPRESSION "122\n")
 
-
+ADD_TEST(NAME test_param  COMMAND ./stone ../test/param.pyc)
+SET_TESTS_PROPERTIES(test_param PROPERTIES PASS_REGULAR_EXPRESSION "Hello\n9\n")
 
 

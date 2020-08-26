@@ -7,7 +7,7 @@
 #include "../object/hiObject.hpp"
 #include "../code/codeObject.hpp"
 #include "../object/hiString.hpp"
-
+#include "../util/map.hpp"
 
 class FunctionKlass: public Klass {
 private:
@@ -32,6 +32,8 @@ public:
   virtual void print(shared_ptr<HiObject> obj) override;
   virtual void print_type(shared_ptr<HiObject> obj) override;
 
+
+
 };
 
 
@@ -41,11 +43,12 @@ class FunctionObject: public HiObject {
   friend class FrameObject;
 
 private:
-  shared_ptr<CodeObject>   _func_code;
-  shared_ptr<HiString>     _func_name;
+  shared_ptr<CodeObject>                          _func_code;
+  shared_ptr<HiString>                            _func_name;
 
+  shared_ptr<Map<shared_ptr<HiObject>,shared_ptr<HiObject>>>  _globals;                                 //全局变量表
 
-  unsigned int             _flags;
+  unsigned int                                    _flags;
 
 public:
   FunctionObject(shared_ptr<HiObject> code_object){
@@ -55,8 +58,10 @@ public:
     this->_func_name = co->_co_name;
     this->_flags     = co->_flag;
 
+
     this->set_klass(FunctionKlass::get_instance());
   }
+
   FunctionObject(shared_ptr<Klass> klass){
     this->_func_code = nullptr;
     this->_func_name = nullptr;
@@ -66,6 +71,9 @@ public:
   }
 
   shared_ptr<HiString> func_name() { return this->_func_name; }
+
+  shared_ptr<Map<shared_ptr<HiObject>, shared_ptr<HiObject>>> globals() {return this->_globals;}          //返回全局变量表
+  void set_globals(shared_ptr<Map<shared_ptr<HiObject>, shared_ptr<HiObject>>> x) {this->_globals = x;}   //设置全局变量表
 
   int flags(){return this->_flags;}
 

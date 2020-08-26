@@ -4,6 +4,9 @@
 
 #include <memory>
 
+#define HI_TRUE        Universe::HiTrue
+#define HI_FALSE       Universe::HiFalse
+
 
 using std::shared_ptr;
 using std::unique_ptr;

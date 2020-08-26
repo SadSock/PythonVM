@@ -1,7 +1,20 @@
-def a():
-    return 1
+
+
+global x
+
+x = 0
+
 
 def b():
-    return a()
+    if x >= 5:
+        return
+    else:
+        x = x + 1
+        b()
+        return
 
-print b()
+
+b()
+
+print x
+

@@ -144,11 +144,13 @@ public:
   static const unsigned char YIELD_VALUE = 86;
 
   enum COMPARE {
-    LESS = 0,
+    LESS               = 0,
     LESS_EQUAL,
     EQUAL,
     NOT_EQUAL,
     GREATER,
-    GREATER_EQUAL
+    GREATER_EQUAL,
+    IS                 = 8,
+    IS_NOT
   };
 };
