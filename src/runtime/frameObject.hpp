@@ -37,6 +37,7 @@ public:
     this->_loop_stack = make_shared<ArrayList<shared_ptr<Block>>>();
   }
 
+
   FrameObject(shared_ptr<FunctionObject>func, shared_ptr<ArrayList<shared_ptr<HiObject>>> args) {  //从FunctionObject初始化FrameObject，
                                                                                                    //用来创建主函数之外的函数对应的栈帧
     this->_codes        = func->_func_code;
@@ -52,11 +53,18 @@ public:
     this->_pc           = 0;
     this->_sender       = nullptr;
 
+    this->_fast_locals = make_shared<ArrayList<shared_ptr<HiObject>>>();
 
+    if(func->_defaults){
+      int dft_cnt = func->_defaults->length();
+      int argcnt  = this->_codes->_argcount;
+
+      while(dft_cnt--){
+        this->_fast_locals->set(--argcnt, func->_defaults->get(dft_cnt));
+      }
+    }
 
     if(args != nullptr){
-      this->_fast_locals = make_shared<ArrayList<shared_ptr<HiObject>>>();
-
       for(int i = 0; i < args->length(); i++){
         this->_fast_locals->set(i,args->get(i));
       }

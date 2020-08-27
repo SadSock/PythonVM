@@ -43,12 +43,14 @@ class FunctionObject: public HiObject {
   friend class FrameObject;
 
 private:
-  shared_ptr<CodeObject>                          _func_code;
-  shared_ptr<HiString>                            _func_name;
+  shared_ptr<CodeObject>                                      _func_code;
+  shared_ptr<HiString>                                        _func_name;
 
   shared_ptr<Map<shared_ptr<HiObject>,shared_ptr<HiObject>>>  _globals;                                 //全局变量表
 
-  unsigned int                                    _flags;
+  unsigned int                                                _flags;
+  shared_ptr<ArrayList<shared_ptr<HiObject>>>                 _defaults;
+  
 
 public:
   FunctionObject(shared_ptr<HiObject> code_object){
@@ -67,14 +69,30 @@ public:
     this->_func_name = nullptr;
     this->_flags     = 0;
 
+    this->_defaults  = nullptr;
+
     this->set_klass(klass);
   }
 
   shared_ptr<HiString> func_name() { return this->_func_name; }
 
   shared_ptr<Map<shared_ptr<HiObject>, shared_ptr<HiObject>>> globals() {return this->_globals;}          //返回全局变量表
-  void set_globals(shared_ptr<Map<shared_ptr<HiObject>, shared_ptr<HiObject>>> x) {this->_globals = x;}   //设置全局变量表
 
+
+  void set_globals(shared_ptr<Map<shared_ptr<HiObject>, shared_ptr<HiObject>>> x) {this->_globals = x;}   //设置全局变量表
+  void set_defaults(shared_ptr<ArrayList<shared_ptr<HiObject>>> defaults){
+    if(defaults == nullptr){
+      this->_defaults = nullptr;
+      return;
+    }
+
+    this->_defaults = make_shared<ArrayList<shared_ptr<HiObject>>>(defaults->length());
+
+    for(int i = 0 ; i < defaults->length(); i++){
+      this->_defaults->set(i,defaults->get(i));
+    }
+    return;
+  }
   int flags(){return this->_flags;}
 
 };

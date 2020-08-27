@@ -108,3 +108,5 @@ ADD_TEST(NAME test_param  COMMAND ./stone ../test/param.pyc)
 SET_TESTS_PROPERTIES(test_param PROPERTIES PASS_REGULAR_EXPRESSION "Hello\n9\n")
 
 
+ADD_TEST(NAME test_default_param COMMAND ./stone ../test/defaults.pyc)
+SET_TESTS_PROPERTIES(test_default_param PROPERTIES PASS_REGULAR_EXPRESSION "1\n2\n")

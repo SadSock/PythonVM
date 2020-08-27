@@ -109,6 +109,18 @@ public:
         v  = POP();
         fo = make_shared<FunctionObject>(v);
         fo->set_globals(_frame->globals());              //函数对象的全局变量表就是当前上下文的全局变量表
+
+        if(op_arg > 0){
+          args = make_shared<ArrayList<shared_ptr<HiObject>>>(op_arg);
+          while(op_arg--){
+            args->set(op_arg, POP());
+          }
+        }
+
+        fo->set_defaults(args);
+
+        if(args != nullptr)
+          args = nullptr;
         PUSH(fo);
         break;
       case ByteCode::BINARY_ADD: // 23

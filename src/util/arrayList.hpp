@@ -43,6 +43,7 @@ public:
     this->_array[index] = t;
   }
   T get(int index) { return _array[index]; };
+
   void set(int index, T t) {
     if (this->_size <= index)
       this->_size = index + 1;
